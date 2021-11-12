@@ -3,45 +3,54 @@
 // imports and requirements
 
 const _ = require("lodash")
-
-/*
-import {
-    LCDClient,
-    MnemonicKey,
-    MsgExecuteContract
-  } from "@terra-money/terra.js";
-*/
-
 const Terra = require("@terra-money/terra.js");
+let lcdClient, chainID;
 
-// Token contract
+// CONFIGURATION SECTION
 
-const tokenContract = "terra14z56l0fp2lsf86zy3hty2z47ezkhnthtr9yq76" // ANC contract for example purposes
+// Set the mnemonic key of the wallet that will send the tokens
+const mnemonicKey = "notice oak worry limit wrap speak medal online prefer cluster roof addict wrist behave treat actual wasp year salad speed social layer crew genius"
+
+// Testnet? Set to false if doing stuff on mainnet
+const testnet = true;
+
+// Token contract you're interacting with
+const tokenContract = "terra1747mad58h0w4y589y3sk84r5efqdev9q4r02pc" // ANC Testnet contract for example purposes
 
 // Array of Wallets and amount to send:
 // tokens amount is using six zeros as decimals, so 1000000 is in reality 1 ANC
 
 const walletsToTransferTokensTo = [
-    ["terra1...", "1000000"],
-    ["terra1...", "2000000"]
+    ["terra17lmam6zguazs5q5u6z5mmx76uj63gldnse2pdp", "1000000"],
+    ["terra1757tkx08n0cqrw7p86ny9lnxsqeth0wgp0em95", "2000000"]
 ]
 
-// connect to LCDClient
-const terra = new Terra.LCDClient({
-    URL: 'https://lcd.terra.dev',
-    chainID: 'columbus-5',
-  });
 
+// END OF CONFIGURATION SECTION
+
+// We check if it's testnet or not
+if (testnet === true) { 
+  lcdClient = "https://bombay-lcd.terra.dev" 
+  chainID = "bombay-12"
+} else {
+  lcdClient = "https://lcd.terra.dev"
+  chainID = "columbus-5"
+}
+
+// create a new client to interact with Terra's blockchain using the parameters from above
+const terra = new Terra.LCDClient({
+    URL: lcdClient,
+    chainID: chainID,
+});
 
 // Mnemonic key
 const mk = new Terra.MnemonicKey({
     mnemonic:
-      '',
+      mnemonicKey,
   });
 
 
 // Start sequence to airdrop to all wallet:
-
 const wallet = terra.wallet(mk);
 let txMessages = [];
 
@@ -67,6 +76,7 @@ const msgChunk = _.chunk(txMessages, 50);
 // we create and sign the Transaction
 // TODO: This needs to be done in a loop so it replaces msgChunk[0] with msgChunk[i]
 // although not sure if this will work as it might need to be done in an async way
+
 wallet.createAndSignTx({
   gasAdjustment: 1.5,
   gasPrices: "1.000000uusd",
@@ -74,7 +84,7 @@ wallet.createAndSignTx({
   memo: ''
 }).then(tx => terra.tx.broadcast(tx))
 .then(result => {
-  console.log(result);
+  console.log(result.txhash);
 }).catch(err => {
     console.log(err);
 });
