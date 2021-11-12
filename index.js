@@ -1,4 +1,8 @@
-// Node.js
+// sendTokenToWallets.js
+// by Midas
+// https://twitter.com/TheMoonMidas
+
+
 
 // imports and requirements
 
